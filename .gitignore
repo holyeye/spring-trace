@@ -1,0 +1,23 @@
+# gradle
+build
+.gradle
+
+# idea
+out
+classes
+.idea
+*.iml
+*.ipr
+*.iws
+*.pyc
+
+# etc
+*.tsv
+*.chk
+*.swp
+*.rdb
+*.txt
+*.tsv
+rebel.xml
+.DS_Store
+.svn/
