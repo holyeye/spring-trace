@@ -22,7 +22,7 @@ import java.util.regex.Pattern;
 /**
  * @author: holyeye
  */
-public class UserCustomizableTraceInterceptor extends CustomizableTraceInterceptor {
+public class SpringTraceAopInterceptor extends CustomizableTraceInterceptor {
 
     public static final String ENTER_MESSAGE = "[$[targetType]] $[targetClassShortName].$[methodName]($[arguments])";
     public static final String EXIT_MESSAGE = ENTER_MESSAGE + " [$[returnValueCustom]] $[invocationTime]ms.";
@@ -39,7 +39,7 @@ public class UserCustomizableTraceInterceptor extends CustomizableTraceIntercept
     public static final String PLACEHOLDER_RETURN_VALUE_CUSTOM = "$[returnValueCustom]";
     public static final String PLACEHOLDER_TARGET_TYPE = "$[targetType]";
 
-    public UserCustomizableTraceInterceptor(TraceLogManager traceLogManager) {
+    public SpringTraceAopInterceptor(TraceLogManager traceLogManager) {
         this.traceLogManager = traceLogManager;
     }
 

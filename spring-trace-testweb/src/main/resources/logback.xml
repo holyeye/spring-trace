@@ -99,7 +99,7 @@
     <logger name="spring.trace" level="${APP_LEVEL}" additivity="false">
         <appender-ref ref="${PRODUCT}" />
     </logger>
-    <!-- 실시간 TRACE, debug:[REQ,RES], trace[WEB,BIZ,DAO] -->
+    <!-- 실시간 TRACE -->
     <logger name="TRACE" level="${TRACE_LEVEL}" additivity="false">
         <appender-ref ref="${PRODUCT}" />
     </logger>
