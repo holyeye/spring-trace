@@ -6,16 +6,14 @@
 
 **적용 예시**
 
-```txt
-[REQ] host=0:0:0:0:0:0:0:1, method=GET, url=http://localhost:8080/test, body={username:"hello"}
-|-->[Controller] HelloController.test()
-|   |-->[Service] HelloService.hello(holyeye)
-|   |   |-->[Repository] HelloRepository.helloQuery()
-|   |   |<--[Repository] HelloRepository.helloQuery() [size=2] 1ms.
-|   |<--[Service] HelloService.hello(holyeye) [hello holyeye] 1ms.
-|<--[Controller] HelloController.test() [hello holyeye] 1ms.
-[RES] host=0:0:0:0:0:0:0:1, method=GET, url=http://localhost:8080/test, status=200, time=3ms, ex=null
-```
+    [REQ] host=0:0:0:0:0:0:0:1, method=GET, url=http://localhost:8080/test, body={username:"hello"}
+    |-->[Controller] HelloController.test()
+    |   |-->[Service] HelloService.hello(holyeye)
+    |   |   |-->[Repository] HelloRepository.helloQuery()
+    |   |   |<--[Repository] HelloRepository.helloQuery() [size=2] 1ms.
+    |   |<--[Service] HelloService.hello(holyeye) [<Member>] 1ms.
+    |<--[Controller] HelloController.test() [hello holyeye] 1ms.
+    [RES] host=0:0:0:0:0:0:0:1, method=GET, url=http://localhost:8080/test, status=200, time=3ms, ex=null
 
 ## 기능
 
