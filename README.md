@@ -14,6 +14,10 @@
     |   |<--[Service] HelloService.hello(holyeye) [<Member>] 1ms.
     |<--[Controller] HelloController.test() [hello holyeye] 1ms.
     [RES] host=0:0:0:0:0:0:0:1, method=GET, url=http://localhost:8080/test, status=200, time=3ms, ex=null
+    
+## 빌드 TODO
+
+## 테스트 TODO
 
 ## 기능
 
@@ -183,3 +187,7 @@ HTTP 요청에 대해서는 `spring.trace.web.TraceLogFilter`를 사용해서 �
 - @Async에서 적절히 로그 남기기
 - XML 설정 기능
 - Interceptor 제공하기
+
+## License
+
+Spring Trace is released under version 2.0 of the Apache License.
