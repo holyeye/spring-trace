@@ -15,9 +15,18 @@ import java.lang.annotation.*;
 @Import(TraceRegistrar.class)
 public @interface EnableTrace {
 
+	/**
+	 * basePackages alias
+	 * @return
+	 */
+	String[] value() default {};
+
+	String[] basePackages() default {};
+
+	Class<?>[] basePackageClasses() default {};
+
 	boolean proxyTargetClass() default false;
 
 	AdviceMode mode() default AdviceMode.PROXY;
 
-    String[] basePackages();
 }
