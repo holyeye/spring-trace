@@ -98,8 +98,7 @@ public class SimpleTraceConfiguration implements ImportAware {
 				}
 			}
 		}
-		String pointcutExpression = sb.toString();
-		return pointcutExpression;
+		return sb.toString();
 	}
 
 	/**
