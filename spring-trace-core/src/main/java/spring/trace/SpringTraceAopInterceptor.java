@@ -1,5 +1,14 @@
 package spring.trace;
 
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Array;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.aopalliance.intercept.MethodInvocation;
 import org.apache.commons.logging.Log;
 import org.springframework.aop.interceptor.CustomizableTraceInterceptor;
@@ -11,20 +20,13 @@ import org.springframework.util.ClassUtils;
 import org.springframework.util.StopWatch;
 import org.springframework.util.StringUtils;
 
-import java.lang.reflect.Array;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 /**
  * @author: holyeye
  */
 public class SpringTraceAopInterceptor extends CustomizableTraceInterceptor {
+	private static final long serialVersionUID = 1L;
 
-    public static final String ENTER_MESSAGE = "[$[targetType]] $[targetClassShortName].$[methodName]($[arguments])";
+	public static final String ENTER_MESSAGE = "[$[targetType]] $[targetClassShortName].$[methodName]($[arguments])";
     public static final String EXIT_MESSAGE = ENTER_MESSAGE + " [$[returnValueCustom]] $[invocationTime]ms.";
     public static final String EXCEPTION_MESSAGE = ENTER_MESSAGE + " Exception! $[exception] $[invocationTime]ms.";
 
@@ -124,7 +126,7 @@ public class SpringTraceAopInterceptor extends CustomizableTraceInterceptor {
         }
     }
 
-    private boolean hasAnnotation(Class<?> targetType, Class annotationType) {
+    private boolean hasAnnotation(Class<?> targetType, Class<? extends Annotation> annotationType) {
         return AnnotationUtils.findAnnotation(targetType, annotationType) != null;
     }
 
@@ -193,9 +195,9 @@ public class SpringTraceAopInterceptor extends CustomizableTraceInterceptor {
         }
 
         if (Collection.class.isAssignableFrom(returnValue.getClass())) {
-            return "size=" + ((Collection) returnValue).size();
+            return "size=" + ((Collection<?>) returnValue).size();
         } else if (Map.class.isAssignableFrom(returnValue.getClass())) {
-            return "size=" + ((Map) returnValue).size();
+            return "size=" + ((Map<?,?>) returnValue).size();
         } else if (returnValue.getClass().isArray()) {
             return "size=" + Array.getLength(returnValue);
         } else if (isWrapperType(returnValue.getClass())) {
