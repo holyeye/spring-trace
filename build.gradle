@@ -85,9 +85,7 @@ project(":spring-trace-testweb") {
                 "org.springframework:spring-oxm:$springVersion",
 
                 "org.springframework:spring-web:$springVersion",
-                "org.springframework:spring-webmvc:$springVersion",
-
-                'org.aspectj:aspectjweaver:1.7.2'
+                "org.springframework:spring-webmvc:$springVersion"
 
         // logging
         compile "org.slf4j:slf4j-api:$slf4jVersion",
