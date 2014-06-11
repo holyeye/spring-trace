@@ -18,6 +18,7 @@ import org.springframework.context.annotation.Role;
 import org.springframework.core.annotation.AnnotationAttributes;
 import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.util.Assert;
+import org.springframework.util.ClassUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 
@@ -31,13 +32,18 @@ import spring.trace.TraceLogManagerImpl;
 
 @Configuration
 public class SimpleTraceConfiguration implements ImportAware {
-
     private static final Logger log = LoggerFactory.getLogger(SimpleTraceConfiguration.class);
 
     protected AnnotationAttributes annotationAttributes;
 
+    /**
+     * Trace 어노테이션이 설정된 config 클래스 명
+     */
+    protected String configClassName;
+
     @Override
     public void setImportMetadata(AnnotationMetadata importMetadata) {
+    	this.configClassName = importMetadata.getClassName();
         this.annotationAttributes = AnnotationAttributes.fromMap(importMetadata.getAnnotationAttributes(
                 EnableTrace.class.getName(), false));
         Assert.notNull(this.annotationAttributes, "@EnableTrace is not present on importing class " + importMetadata.getClassName());
@@ -55,7 +61,7 @@ public class SimpleTraceConfiguration implements ImportAware {
     public Advisor packageTraceAdvisor() {
     	ComposablePointcut resultPointcut = new ComposablePointcut();
     	{
-	        String[] basePackages = this.annotationAttributes.getStringArray("basePackages");
+	        List<String> basePackages = findBasePackages();
 	        String pointcutExpression = makeExpression(basePackages);
 	        AspectJExpressionPointcut packagePointcut = new AspectJExpressionPointcut();
 	        log.debug("Include package Pointcut expression : {}", pointcutExpression);
@@ -72,26 +78,53 @@ public class SimpleTraceConfiguration implements ImportAware {
     }
 
 	/**
+	 * BasePackage를 찾는다.
+	 *
+	 * 만약에 basePackages 정보가 존재 하지 않으면
+	 * 기존 EnableTrace 어노테이션이 설정 되어 있는 Config 클래스의 패키지가 기본으로 설정 된다.
+	 *
+	 * @return
+	 */
+	private List<String> findBasePackages() {
+		List<String> basePackages = new ArrayList<String>();
+		for (String pkg : this.annotationAttributes.getStringArray("value")) {
+			if (StringUtils.hasText(pkg)) {
+				basePackages.add(pkg);
+			}
+		}
+		for (String pkg : this.annotationAttributes.getStringArray("basePackages")) {
+			if (StringUtils.hasText(pkg)) {
+				basePackages.add(pkg);
+			}
+		}
+		for (Class<?> clazz : this.annotationAttributes.getClassArray("basePackageClasses")) {
+			basePackages.add(ClassUtils.getPackageName(clazz));
+		}
+		if (basePackages.isEmpty()) {
+			String defaultPackageName = ClassUtils.getPackageName(configClassName);
+			basePackages.add(defaultPackageName);
+			log.debug("Default package name : {}", defaultPackageName);
+		}
+		return basePackages;
+	}
+
+	/**
 	 * basePackage 배열을 기반으로 pointcut expression을 생
 	 * @param basePackages
 	 * @return
 	 */
-	private String makeExpression(String[] basePackages) {
-		String[] verifyBasePackages = verifyArray(basePackages);
-		int basePackagesLength = verifyBasePackages.length;
-		if(basePackagesLength == 0) {
-			throw new IllegalArgumentException("\"basePackages\" not found");
-		}
+	private String makeExpression(List<String> basePackages) {
+		Assert.notNull(basePackages);
 		StringBuilder sb = new StringBuilder(); {
 			sb.append("(");
 			int cnt = 0;
-			for (String basePackage : verifyBasePackages) {
+			for (String basePackage : basePackages) {
 				if(!StringUtils.hasText(basePackage)) {
 					continue;
 				}
 				cnt++;
 				sb.append(String.format("execution(* %s..*.*(..))", basePackage));
-				if (basePackagesLength != cnt) {
+				if (basePackages.size() != cnt) {
 					sb.append(" or ");
 				} else {
 					sb.append(") ");
@@ -99,20 +132,5 @@ public class SimpleTraceConfiguration implements ImportAware {
 			}
 		}
 		return sb.toString();
-	}
-
-	/**
-	 * 내부에 문자열이 없는 Array를 검사하여 제거
-	 * @param array
-	 * @return
-	 */
-	private String[] verifyArray(String[] array) {
-		List<String> list = new ArrayList<String>(array.length);
-		for(String e : array) {
-			if(StringUtils.hasText(e)) {
-				list.add(e);
-			}
-		}
-		return list.toArray(new String[0]);
 	}
 }
