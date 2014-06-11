@@ -3,6 +3,9 @@ package spring.trace.web;
 import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
+
+import org.springframework.util.StreamUtils;
+
 import java.io.*;
 
 /**
@@ -23,7 +26,7 @@ public class MultiReadHttpServletRequest extends HttpServletRequestWrapper {
         InputStream is = super.getInputStream();
 
         ByteArrayOutputStream output = new ByteArrayOutputStream();
-        HttpReadUtils.copy(is, output);
+        StreamUtils.copy(is, output);
 
         body = output.toByteArray();
     }

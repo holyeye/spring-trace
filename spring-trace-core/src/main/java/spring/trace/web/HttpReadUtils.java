@@ -1,17 +1,17 @@
 package spring.trace.web;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.util.Assert;
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.nio.CharBuffer;
-import java.nio.charset.Charset;
-import java.util.*;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.util.StreamUtils;
 
 /**
  * User: HolyEyE
@@ -24,12 +24,14 @@ public class HttpReadUtils {
 
     public final static String APPLICATION_FORM_URLENCODED_VALUE = "application/x-www-form-urlencoded";
 
+    @SuppressWarnings("serial")
     public static final Set<String> MULTI_READ_HTTP_METHODS = new HashSet<String>() {{
         add("PUT");
         add("POST");
     }};
 
-    public static final Set<String> SPRING_MOCK_REQUESTS = new HashSet<String>() {{
+    @SuppressWarnings("serial")
+	public static final Set<String> SPRING_MOCK_REQUESTS = new HashSet<String>() {{
         add("MockHttpServletRequest"); //spring 3.x
         add("Servlet3MockHttpServletRequest"); //spring 4.x
     }};
@@ -42,7 +44,10 @@ public class HttpReadUtils {
         if (isSpringMVCMockTest(request)) return readBody(request, encoding);
 
         if (!(request instanceof MultiReadHttpServletRequest)) {
-            log.warn("MultiReadHttpServletRequest 타입이 아닙니다. 필터를 설정하세요. requestType={} URL={}", request.getClass(), getRequestURLWithQueryString(request));
+        	if (log.isWarnEnabled()) {
+        		log.warn("MultiReadHttpServletRequest 타입이 아닙니다. 필터를 설정하세요. requestType={} URL={}",
+        				request.getClass(), getRequestURLWithQueryString(request));
+        	}
             return null;
         }
 
@@ -102,54 +107,9 @@ public class HttpReadUtils {
     private static String readBody(HttpServletRequest request, String encoding) {
         try {
             if (request.getInputStream() == null) return null;
-
-            return toString(new InputStreamReader(request.getInputStream(), Charset.forName(encoding)));
+            return StreamUtils.copyToString(request.getInputStream(), Charset.forName(encoding));
         } catch (IOException e) {
             throw new IllegalStateException(e);
         }
     }
-
-    public static String toString(Readable r) throws IOException {
-        return toStringBuilder(r).toString();
-    }
-
-    private static StringBuilder toStringBuilder(Readable r) throws IOException {
-        StringBuilder sb = new StringBuilder();
-        copy(r, sb);
-        return sb;
-    }
-
-    private static final int BUF_SIZE = 0x800; // 2K chars (4K bytes)
-    public static long copy(Readable from, Appendable to) throws IOException {
-
-        Assert.notNull(from);
-        Assert.notNull(to);
-
-        CharBuffer buf = CharBuffer.allocate(BUF_SIZE);
-        long total = 0;
-        while (from.read(buf) != -1) {
-            buf.flip();
-            to.append(buf);
-            total += buf.remaining();
-            buf.clear();
-        }
-        return total;
-    }
-
-    public static long copy(InputStream from, OutputStream to) throws IOException {
-        Assert.notNull(from);
-        Assert.notNull(to);
-        byte[] buf = new byte[BUF_SIZE];
-        long total = 0;
-        while (true) {
-            int r = from.read(buf);
-            if (r == -1) {
-                break;
-            }
-            to.write(buf, 0, r);
-            total += r;
-        }
-        return total;
-    }
-
 }
