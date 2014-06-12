@@ -8,7 +8,7 @@ import java.io.StringWriter;
 import java.util.List;
 
 /**
- * @author: holyeye
+ * @author holyeye
  */
 public class TraceLogManagerImpl implements TraceLogManager {
 
@@ -17,16 +17,18 @@ public class TraceLogManagerImpl implements TraceLogManager {
     public static final String USER_ERROR = "USER_ERROR";
     public static final String SLOW_LOGIC = "SLOW_LOGIC";
 
-    private Logger traceLog = LoggerFactory.getLogger(TRACE);
-    private Logger appErrorLog = LoggerFactory.getLogger(APP_ERROR);
-    private Logger userErrorLog = LoggerFactory.getLogger(USER_ERROR);
-    private Logger slowLog = LoggerFactory.getLogger(SLOW_LOGIC);
+    private static final Logger log = LoggerFactory.getLogger(TraceLogManagerImpl.class);
+    private static final Logger traceLog = LoggerFactory.getLogger(TRACE);
+    private static final Logger appErrorLog = LoggerFactory.getLogger(APP_ERROR);
+    private static final Logger userErrorLog = LoggerFactory.getLogger(USER_ERROR);
+    private static final Logger slowLog = LoggerFactory.getLogger(SLOW_LOGIC);
 
-    private long timeoutMillisecond = 1000;
+    private long slowTime = 1000;
 
     @Override
-    public void setTimeoutMillisecond(long timeoutMillisecond) {
-        this.timeoutMillisecond = timeoutMillisecond;
+    public void setSlowTime(long slowTime) {
+        log.info("slowTime = {}ms", slowTime);
+        this.slowTime = slowTime;
     }
 
     @Override
@@ -60,8 +62,6 @@ public class TraceLogManagerImpl implements TraceLogManager {
     /**
      * 마지막에 발생한 예외를 최종 예외로 인정한다. 웹 애플리케이션은 스프링MVC에서 예외를 처리해버릴 수 있기 때문에 컨트롤러에서 발생한 예외를 최종 예외로 인정해야 한다.
      *
-     * @param message
-     * @param ex
      */
     @Override
     public void writeExceptionLog(String message, Throwable ex) {
@@ -88,7 +88,7 @@ public class TraceLogManagerImpl implements TraceLogManager {
         long responseTime = getResponseTime();
 
         //슬로우 로그
-        if (responseTime >= timeoutMillisecond) {
+        if (responseTime >= slowTime) {
             String result = buildTrace();
             slowLog.error(result);
         }

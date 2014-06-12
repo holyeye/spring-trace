@@ -1,7 +1,7 @@
 package spring.trace;
 
 /**
- * @author: holyeye
+ * @author holyeye
  */
 public interface TraceLogManager {
 
@@ -11,7 +11,7 @@ public interface TraceLogManager {
 
     void writeExceptionLog(String message, Throwable ex);
 
-    void setTimeoutMillisecond(long timeoutMillisecond);
+    void setSlowTime(long slowTime);
 
     void setException(Throwable ex);
 
