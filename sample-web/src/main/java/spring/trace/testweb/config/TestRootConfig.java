@@ -3,7 +3,7 @@ package spring.trace.testweb.config;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableAsync;
-import org.springframework.stereotype.Controller;
+import spring.trace.configuration.EnableTrace;
 
 /**
  * @author: holyeye
@@ -11,6 +11,7 @@ import org.springframework.stereotype.Controller;
 
 @Configuration
 @EnableAsync
-@ComponentScan(basePackages = "spring.trace.testweb", excludeFilters = @ComponentScan.Filter(Controller.class))
+@EnableTrace(basePackages = "spring.trace.testweb")
+@ComponentScan(basePackages = {"spring.trace.testweb.service", "spring.trace.testweb.repository"})
 public class TestRootConfig {
 }
