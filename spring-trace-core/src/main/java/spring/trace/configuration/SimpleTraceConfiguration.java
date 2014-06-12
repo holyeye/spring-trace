@@ -20,7 +20,6 @@ import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.ControllerAdvice;
 
 import spring.trace.SpringTraceAopInterceptor;
 import spring.trace.TraceLogManager;
@@ -35,6 +34,8 @@ public class SimpleTraceConfiguration implements ImportAware {
     private static final Logger log = LoggerFactory.getLogger(SimpleTraceConfiguration.class);
 
     protected AnnotationAttributes annotationAttributes;
+
+    private static final String CONTROLLER_ADVICE_CLASS_NAME = "org.springframework.web.bind.annotation.ControllerAdvice";
 
     /**
      * Trace 어노테이션이 설정된 config 클래스 명
@@ -69,7 +70,7 @@ public class SimpleTraceConfiguration implements ImportAware {
 	        resultPointcut.intersection((Pointcut) packagePointcut);
     	}
     	AspectJExpressionPointcut basePointcut = new AspectJExpressionPointcut();
-    	basePointcut.setExpression("!@within("+Configuration.class.getName()+") and !@within("+ ControllerAdvice.class.getName()+")");
+    	basePointcut.setExpression("!@within("+Configuration.class.getName()+") and !@within("+ CONTROLLER_ADVICE_CLASS_NAME +")");
     	resultPointcut.intersection((Pointcut) basePointcut);
 
         DefaultPointcutAdvisor pointcutAdvisor = new DefaultPointcutAdvisor(resultPointcut, new SpringTraceAopInterceptor(traceLogManager()));

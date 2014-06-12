@@ -50,6 +50,24 @@ project(":spring-trace-core") {
                 "org.springframework:spring-expression:$springVersion",
                 "org.springframework:spring-aop:$springVersion"
 
+        // logging
+        compile "org.slf4j:slf4j-api:$slf4jVersion",
+                "org.slf4j:jcl-over-slf4j:$slf4jVersion",
+                "ch.qos.logback:logback-classic:$logBackVersion"
+
+        // spring integration test
+        testCompile "org.springframework:spring-test:$springVersion"
+    }
+
+}
+
+project(":spring-trace-web") {
+
+    description = "spring-trace-web"
+
+    dependencies {
+
+        compile project(":spring-trace-core")
         compile "org.springframework:spring-web:$springVersion"
 
         // logging
@@ -65,15 +83,15 @@ project(":spring-trace-core") {
 
 }
 
-project(":spring-trace-testweb") {
+project(":sample-web") {
 
-    description = "spring-trace-testweb"
+    description = "sample-web"
 
     apply plugin: 'war'
 
     dependencies {
 
-        compile project(":spring-trace-core")
+        compile project(":spring-trace-web")
 
         compile "org.springframework:spring-core:$springVersion",
                 "org.springframework:spring-context:$springVersion",
