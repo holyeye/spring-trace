@@ -36,6 +36,7 @@ public class SimpleTraceConfiguration implements ImportAware, EnvironmentAware {
     private static final Logger log = LoggerFactory.getLogger(SimpleTraceConfiguration.class);
 
     private static final String CONTROLLER_ADVICE_CLASS_NAME = "org.springframework.web.bind.annotation.ControllerAdvice";
+    private static final String CONFIG_ADVICE_CLASS_NAME = "org.springframework.context.annotation.Configuration";
 
     protected AnnotationAttributes annotationAttributes;
 
@@ -69,18 +70,58 @@ public class SimpleTraceConfiguration implements ImportAware, EnvironmentAware {
             List<String> basePackages = findBasePackages();
             String pointcutExpression = makeExpression(basePackages);
             AspectJExpressionPointcut packagePointcut = new AspectJExpressionPointcut();
-            log.debug("Include package Pointcut expression : {}", pointcutExpression);
+            log.info("Include package Pointcut expression : {}", pointcutExpression);
             packagePointcut.setExpression(pointcutExpression);
             resultPointcut.intersection((Pointcut) packagePointcut);
         }
+
+        String excludeAnnotation = buildExcludeAnnotation();
+        log.info("Exclude Annotation Pointcut expression : {}", excludeAnnotation);
+
         AspectJExpressionPointcut basePointcut = new AspectJExpressionPointcut();
-        basePointcut.setExpression("!@within(" + Configuration.class.getName() + ") and !@within(" + CONTROLLER_ADVICE_CLASS_NAME + ")");
+        basePointcut.setExpression(excludeAnnotation);
         resultPointcut.intersection((Pointcut) basePointcut);
 
         DefaultPointcutAdvisor pointcutAdvisor = new DefaultPointcutAdvisor(resultPointcut, new SpringTraceAopInterceptor(traceLogManager));
         pointcutAdvisor.setOrder(Integer.MAX_VALUE);
         return pointcutAdvisor;
     }
+
+    String buildExcludeAnnotation() {
+
+        List<String> excludeList = new ArrayList<String>();
+        if(hasAnnotation(CONFIG_ADVICE_CLASS_NAME)){
+            excludeList.add(CONFIG_ADVICE_CLASS_NAME);
+        }
+        if(hasAnnotation(CONTROLLER_ADVICE_CLASS_NAME)){
+            excludeList.add(CONTROLLER_ADVICE_CLASS_NAME);
+        }
+
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < excludeList.size(); i++) {
+
+            String annotationName = excludeList.get(i);
+            if (i > 0) {
+                sb.append(" and ");
+            }
+
+            sb.append("!@within(").append(annotationName).append(")");
+        }
+        return sb.toString();
+    }
+
+
+    private boolean hasAnnotation(String annotationName) {
+        try {
+            Class<?> aClass = Class.forName(annotationName);
+            if(aClass.isAnnotation()){
+                return true;
+            }
+        } catch (ClassNotFoundException e) {
+        }
+        return false;
+    }
+
 
     /**
      * BasePackage를 찾는다.
