@@ -8,6 +8,8 @@ import org.springframework.web.context.request.async.WebAsyncManager;
 import org.springframework.web.context.request.async.WebAsyncUtils;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
+import org.springframework.web.util.NestedServletException;
+import spring.trace.ErrorLogType;
 import spring.trace.TraceLogInfo;
 import spring.trace.TraceLogInfoThreadLocalManager;
 import spring.trace.TraceLogManager;
@@ -82,12 +84,34 @@ public class TraceLogFilter extends OncePerRequestFilter {
                 TraceLogInfoThreadLocalManager.bindTraceLogInfo((TraceLogInfo) request.getAttribute(LOG_INFO_ATTRIBUTE_NAME));
             }
 
+            setErrorLogTypeByHttpStatus(response, logManager, exception);
+
             if (exception == null) {
                 logManager.writeEndLog(buildResponseLog(request, response, null, logManager.getResponseTime()));
             } else {
                 logManager.writeExceptionLog(buildResponseLog(request, response, exception, logManager.getResponseTime()), exception);
             }
 
+        }
+    }
+
+    private void setErrorLogTypeByHttpStatus(HttpServletResponse response, TraceLogManager logManager, Exception exception) {
+
+        //스프링에서 처리되지 않은 예외
+        if (exception instanceof NestedServletException) {
+            logManager.setErrorLogType(ErrorLogType.APP_ERROR);
+            return;
+        }
+
+        //사용자 예외
+        if (response.getStatus() >= 400 && response.getStatus() <= 499) {
+            logManager.setErrorLogType(ErrorLogType.USER_ERROR);
+
+        } else if (response.getStatus() >= 500 && response.getStatus() <= 599) {
+            //애플리케이션 예외
+            logManager.setErrorLogType(ErrorLogType.APP_ERROR);
+        } else {
+            logManager.setErrorLogType(ErrorLogType.NONE);
         }
     }
 

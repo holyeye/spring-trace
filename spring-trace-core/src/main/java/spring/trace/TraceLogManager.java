@@ -19,4 +19,7 @@ public interface TraceLogManager {
 
     long getResponseTime();
 
+    void setErrorLogType(ErrorLogType type);
+    ErrorLogType getErrorLogType();
+
 }

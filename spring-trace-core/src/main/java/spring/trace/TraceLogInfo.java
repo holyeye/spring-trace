@@ -12,6 +12,7 @@ public class TraceLogInfo {
     private Throwable exception = null;
     private Long time = System.currentTimeMillis();
     private int depth;
+    private ErrorLogType errorLogType = ErrorLogType.APP_ERROR; //Default
 
     public List<String> getLogs() {
         return logs;
@@ -51,5 +52,13 @@ public class TraceLogInfo {
                 ", time=" + time +
                 ", depth=" + depth +
                 '}';
+    }
+
+    public void setErrorLogType(ErrorLogType errorLogType) {
+        this.errorLogType = errorLogType;
+    }
+
+    public ErrorLogType getErrorLogType() {
+        return errorLogType;
     }
 }

@@ -93,22 +93,18 @@ public class TraceLogManagerImpl implements TraceLogManager {
             slowLog.error(result);
         }
 
-        if (getException() != null) {
-            String result = buildTraceAndExceptionLog();
-            //TODO 사용자 예외, 애플리케이션 예외를 어떻게 분리할 것인가?
-            appErrorLog.error(result);
-        }
+        if (getException() == null) return;
 
-/*
         //사용자 예외
-        if (httpResponse.getStatus() >= 400 && httpResponse.getStatus() <= 499) {
+        if (getErrorLogType() == ErrorLogType.USER_ERROR) {
+            String result = buildTraceAndExceptionLog();
             userErrorLog.info(result);
 
-        } else if (httpResponse.getStatus() >= 500 && httpResponse.getStatus() <= 599) {
+        } else if (getErrorLogType() == ErrorLogType.APP_ERROR) {
             //애플리케이션 예외
+            String result = buildTraceAndExceptionLog();
             appErrorLog.error(result);
         }
-*/
 
     }
 
@@ -184,6 +180,17 @@ public class TraceLogManagerImpl implements TraceLogManager {
     @Override
     public long getResponseTime() {
         return System.currentTimeMillis() - TraceLogInfoThreadLocalManager.getTime();
+    }
+
+    @Override
+    public void setErrorLogType(ErrorLogType type) {
+        TraceLogInfoThreadLocalManager.setErrorLogType(type);
+
+    }
+
+    @Override
+    public ErrorLogType getErrorLogType() {
+        return TraceLogInfoThreadLocalManager.getErrorLogType();
     }
 
     private String getExceptionTrace() {

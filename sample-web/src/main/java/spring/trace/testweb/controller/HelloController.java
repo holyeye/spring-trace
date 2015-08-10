@@ -52,6 +52,17 @@ public class HelloController {
         throw new ExceptionHandlerCatchException();
     }
 
+    @RequestMapping("exception-to-ok")
+    public String exceptionBut200OK() throws Exception {
+        throw new IllegalAccessException();
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.OK)
+    @ResponseBody
+    public String handleException(IllegalAccessException ex) {
+        return ex.getMessage();
+    }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)

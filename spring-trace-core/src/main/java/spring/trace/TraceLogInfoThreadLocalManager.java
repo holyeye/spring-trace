@@ -15,6 +15,7 @@ public class TraceLogInfoThreadLocalManager {
     private static Logger log = LoggerFactory.getLogger(TraceLogInfoThreadLocalManager.class);
 
     private static ThreadLocal<TraceLogInfo> traceLogInfoThreadLocal = new NamedThreadLocal<TraceLogInfo>("Trace Log Info ThreadLocal");
+    private static ErrorLogType errorLogType;
 
 
     public static void addLog(String message) {
@@ -71,5 +72,13 @@ public class TraceLogInfoThreadLocalManager {
     }
     public static void removeDepth() {
         getTraceLogInfo().removeDepth();
+    }
+
+    public static void setErrorLogType(ErrorLogType errorLogType) {
+        getTraceLogInfo().setErrorLogType(errorLogType);
+    }
+
+    public static ErrorLogType getErrorLogType() {
+        return getTraceLogInfo().getErrorLogType();
     }
 }
