@@ -75,6 +75,7 @@ public class TraceLogFilter extends OncePerRequestFilter {
             filterChain.doFilter(request, response);
         } catch (Exception e) {
             exception = e;
+            throw e;
         } finally {
 
             if (isAsyncStarted(request)) return;
